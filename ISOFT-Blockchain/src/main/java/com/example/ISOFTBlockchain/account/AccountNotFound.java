@@ -7,11 +7,6 @@ import lombok.Setter;
 @Setter
 @Getter
 @AllArgsConstructor
-public class HackedAccount extends Account {
-
+public class AccountNotFound extends Account{
     private String Error_Message;
-
-    private Account Hacked_Account;
-
-    private Account Correct_Account;
 }

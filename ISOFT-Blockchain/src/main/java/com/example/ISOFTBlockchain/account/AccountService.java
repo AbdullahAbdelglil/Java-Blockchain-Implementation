@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 @Service
 public class AccountService {
 
@@ -50,7 +49,7 @@ public class AccountService {
         return accountsHistory.get(accountNumber);
     }
 
-    public List<Transaction> getTransactionInPeriod(String accountNumber, Long start, Long end) {
+    public List<Transaction> getAccountHistoryInPeriod(String accountNumber, Long start, Long end) {
         List<Transaction> history = accountsHistory.get(accountNumber);
         List<Transaction> transactions = new ArrayList<>();
 
