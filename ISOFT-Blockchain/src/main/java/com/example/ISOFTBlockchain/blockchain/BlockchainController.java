@@ -3,6 +3,7 @@ package com.example.ISOFTBlockchain.blockchain;
 import com.example.ISOFTBlockchain.account.Account;
 import com.example.ISOFTBlockchain.block.Block;
 import com.example.ISOFTBlockchain.transaction.Transaction;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/blockchain")
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class BlockchainController {
 
     private final BlockchainServices blockchainServices;

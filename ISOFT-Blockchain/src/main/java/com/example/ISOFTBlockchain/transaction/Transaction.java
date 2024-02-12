@@ -3,15 +3,11 @@ package com.example.ISOFTBlockchain.transaction;
 import com.example.ISOFTBlockchain.account.Account;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.util.Collections;
 import java.util.List;
 
-@Setter
-@Getter
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Transaction {
 
     private String transactionType;
@@ -27,6 +23,53 @@ public class Transaction {
     @JsonIgnore
     private Long timeStamp;
 
+    public String getTransactionType() {
+        return transactionType;
+    }
+
+    public void setTransactionType(String transactionType) {
+        this.transactionType = transactionType;
+    }
+
+    public Account getSender() {
+        return sender;
+    }
+
+    public void setSender(Account sender) {
+        this.sender = sender;
+    }
+
+    public Account getReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(Account receiver) {
+        this.receiver = receiver;
+    }
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
+
+    public List<Account> getLedger() {
+        return ledger;
+    }
+
+    public void setLedger(List<Account> ledger) {
+        this.ledger = ledger;
+    }
+
+    public Long getTimeStamp() {
+        return timeStamp;
+    }
+
+    public void setTimeStamp(Long timeStamp) {
+        this.timeStamp = timeStamp;
+    }
 
     @Override
     public String toString() {

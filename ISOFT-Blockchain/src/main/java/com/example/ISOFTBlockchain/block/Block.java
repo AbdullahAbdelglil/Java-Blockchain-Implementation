@@ -10,8 +10,7 @@ import java.security.MessageDigest;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Document(collection = "blockchain")
-@Data
-@NoArgsConstructor
+
 public class Block {
 
     private String hash;
@@ -24,12 +23,55 @@ public class Block {
 
     private Transaction transaction;
 
+    public Block() {
+    }
+
     public Block(Transaction transaction, String previousHash) {
         this.transaction = transaction;
         this.timestamp = System.currentTimeMillis();
         this.previousHash = previousHash;
         this.nonce = 0;
         setHash();
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
+
+    public String getPreviousHash() {
+        return previousHash;
+    }
+
+    public void setPreviousHash(String previousHash) {
+        this.previousHash = previousHash;
+    }
+
+    public int getNonce() {
+        return nonce;
+    }
+
+    public void setNonce(int nonce) {
+        this.nonce = nonce;
+    }
+
+    public Long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public Transaction getTransaction() {
+        return transaction;
+    }
+
+    public void setTransaction(Transaction transaction) {
+        this.transaction = transaction;
     }
 
     public void setHash() {

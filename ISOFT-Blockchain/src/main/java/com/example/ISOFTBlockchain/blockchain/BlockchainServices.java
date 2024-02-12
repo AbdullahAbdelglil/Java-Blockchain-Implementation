@@ -13,7 +13,6 @@ import com.example.ISOFTBlockchain.transaction.Transaction;
 import com.hazelcast.collection.IList;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.map.IMap;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,16 +20,27 @@ import java.util.*;
 @Service
 public class BlockchainServices {
     private final AccountService accountService;
-    private final BlockService blockService;
-    private final HazelcastInstance hazelcast = Hazelcast.newHazelcastInstance();
-    private IList<Block> IBlockchain = hazelcast.getList("blockchain");
-    private IMap<String, Account> accounts = hazelcast.getMap("accounts");
+    private static BlockService blockService;
+    private static HazelcastInstance hazelcast = Hazelcast.newHazelcastInstance();
+   private static IList<Block> IBlockchain = hazelcast.getList("blockchain");
+    private static List<Block> blockchain = new ArrayList<>();
+
 
     //-------------------------------------------------Constructor------------------------------------------------------
 
     public BlockchainServices(AccountService accountService, BlockService blockService) {
         this.accountService = accountService;
         this.blockService = blockService;
+    }
+
+    //----------------------------------------------------Init----------------------------------------------------------
+
+    public static void init() {
+        Block lastBlock = blockService.getLastBlock();
+        if (lastBlock != null) {
+            IBlockchain.add(lastBlock);
+            blockchain.add(lastBlock);
+        }
     }
 
     //----------------------------------------------Account Services----------------------------------------------------
@@ -43,22 +53,20 @@ public class BlockchainServices {
         Block block = new Block(transaction, getLastHash());
         mine(block);
 
-        if (isValidBlockchain() == (Boolean) true) {
+        if ( block.getPreviousHash().equals(Constants.GENESIS_PREV_HASH) || isValidBlockchain() == (Boolean) true) {
             return recordTransaction(block, account, null, transaction);
         }
-
         return isValidBlockchain();
     }
 
     public Object withdraw(String accountNumber, Double amount) {
         Account dbAccount = accountService.getAccount(accountNumber);
 
-        if(dbAccount==null) {
+        if (dbAccount == null) {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
         }
 
         Double balance = dbAccount.getBalance();
-
         if (balance < amount || amount < 0) {
             return new InvalidTransaction(Constants.SUFFICIENT_FUNDS);
         }
@@ -79,12 +87,11 @@ public class BlockchainServices {
     public Object deposit(String accountNumber, Double amount) {
         Account dbAccount = accountService.getAccount(accountNumber);
 
-        if(dbAccount==null) {
+        if (dbAccount == null) {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
         }
 
         Double balance = dbAccount.getBalance();
-
         if (amount < 0) {
             return new InvalidTransaction(Constants.SUFFICIENT_FUNDS);
         }
@@ -106,7 +113,7 @@ public class BlockchainServices {
         Account sender = accountService.getAccount(fromAccountNumber);
         Account receiver = accountService.getAccount(toAccountNumber);
 
-        if(sender==null || receiver==null) {
+        if (sender == null || receiver == null) {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
         }
 
@@ -127,14 +134,16 @@ public class BlockchainServices {
         mine(block);
 
         if (isValidBlockchain() == (Boolean) true) {
-            return recordTransaction(block, sender, receiver, transaction);
+            Object result = recordTransaction(block, sender, receiver, transaction);
+            return result;
         }
+
         return isValidBlockchain();
     }
 
     public Account getAccount(String accountNumber) {
         Account dbaccount = accountService.getAccount(accountNumber);
-        if(dbaccount==null) {
+        if (dbaccount == null) {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
         }
 
@@ -142,7 +151,6 @@ public class BlockchainServices {
     }
 
     public List<Transaction> getAccountHistory(String accountNumber) {
-        Account dbAccount = getAccount(accountNumber);
         return accountService.getAccountHistory(accountNumber);
     }
 
@@ -157,18 +165,25 @@ public class BlockchainServices {
     }
 
     public Block recordTransaction(Block block, Account sender, Account receiver, Transaction transaction) {
+        if ((hazelcast.getLifecycleService().isRunning())) {
+            Block lastBlock = blockService.getLastBlock();
+            if (IBlockchain.isEmpty() && lastBlock != null) {
+                IBlockchain.add(lastBlock);
+            }
+            IBlockchain.add(block);
+            blockchain.clear();
+            blockchain.add(block);
+        } else {
+            blockchain.add(block);
+        }
+
         accountService.save(sender);
         accountService.saveTransaction(sender.getAccountNumber(), transaction);
-        accounts.put(sender.getAccountNumber(), sender);
-
         if (receiver != null) {
             accountService.save(receiver);
             accountService.saveTransaction(receiver.getAccountNumber(), transaction);
-            accounts.put(receiver.getAccountNumber(), receiver);
         }
-
         transaction.setTimeStamp(block.getTimestamp());
-        IBlockchain.add(block);
         blockService.save(block);
         return block;
     }
@@ -176,11 +191,9 @@ public class BlockchainServices {
     //----------------------------------------------Blockchain Services-------------------------------------------------
 
     public List<Block> getInMemoryBlockchain() {
-        return IBlockchain;
-    }
-
-    public List<Block> getHistoricalBlockchain() {
-        return blockService.getBlockchain();
+        if(hazelcast.getLifecycleService().isRunning()) return IBlockchain ;
+        else
+            return blockchain;
     }
 
     //---------------------------------------------Helper Methods-------------------------------------------------------
@@ -242,49 +255,85 @@ public class BlockchainServices {
     }
 
     public Object isValidBlockchain() {
-        //System.out.println(hazelcast.getLifecycleService().isRunning());
-        Transaction blockchainTest = verifyBlockchain();
-        Account accountsTest = verifyAccounts();
+        List<HackedAccount> accountsTest = verifyAccounts();
+        Object blockchainTest = verifyBlockchain();
 
         if (blockchainTest == null && accountsTest == null) return true;
         else if (accountsTest != null && blockchainTest == null) return accountsTest;
         else if (accountsTest == null && blockchainTest != null) return blockchainTest;
-        else return null;
+        else return accountsTest;
     }
 
-    public Account verifyAccounts() {
+    public List<HackedAccount> verifyAccounts() {
         List<Account> dbAccounts = accountService.getAllAccounts();
-        List<Account> memoryAccounts = new ArrayList<>(accounts.values());
+        List<Account> memoryAccounts = ((hazelcast.getLifecycleService().isRunning()) ?
+                IBlockchain.get(IBlockchain.size() - 1).getTransaction().getLedger() :
+                blockchain.get(blockchain.size() - 1).getTransaction().getLedger());
 
         Collections.sort(dbAccounts);
         Collections.sort(memoryAccounts);
 
-        for (int i = 0; i < dbAccounts.size(); i++) {
+        List<HackedAccount> hackedAccounts = getAccountsHacked(memoryAccounts, dbAccounts);
+        if (hackedAccounts.isEmpty()) return null;
+        return hackedAccounts;
+    }
+
+    private static List<HackedAccount> getAccountsHacked(List<Account> memoryAccounts, List<Account> dbAccounts) {
+        List<HackedAccount> hackedAccounts = new ArrayList<>();
+
+        for (int i = 0; i < memoryAccounts.size(); i++) {
             Account dbAccount = dbAccounts.get(i);
             Account memoryAccount = memoryAccounts.get(i);
-
+            HackedAccount hackedAccount;
             if (!(dbAccount.toString().equals(memoryAccount.toString()))) {
-                return new HackedAccount(Constants.DB_HACKED_ERROR, dbAccount, memoryAccount);
+                hackedAccount = new HackedAccount();
+                hackedAccount.setHacked_Account(dbAccount);
+                hackedAccount.setCorrect_Account(memoryAccount);
+                hackedAccounts.add(hackedAccount);
             }
+        }
+        return hackedAccounts;
+    }
+
+    public Object verifyBlockchain() {
+        Transaction lastTransactionDB = blockService.getLastBlock().getTransaction();
+        Transaction lastTransactionMemory;
+
+        if((hazelcast.getLifecycleService().isRunning())) {
+            lastTransactionMemory = IBlockchain.get(IBlockchain.size()-1).getTransaction();
+        }
+        else {
+            lastTransactionMemory = blockchain.get(blockchain.size() - 1).getTransaction();
+        }
+
+
+        if (!lastTransactionMemory.toString().equals(lastTransactionDB.toString())) {
+            lastTransactionDB.setLedger(getHackedAccounts(lastTransactionDB.getLedger(), lastTransactionMemory.getLedger()));
+            return new HackedTransaction(Constants.LEDGER_HACKED_ERROR, lastTransactionDB, lastTransactionMemory);
         }
         return null;
     }
 
-    public Transaction verifyBlockchain() {
-        List<Block> dbBlockchain = blockService.getBlockchain();
-
-        for (int i = 0; i < dbBlockchain.size(); i++) {
-            Block dbBlock = dbBlockchain.get(i);
-            Block memoryBlock = IBlockchain.get(i);
-
-            if (!(dbBlock.toString().equals(memoryBlock.toString()))) {
-                return new HackedTransaction(Constants.DB_HACKED_ERROR, dbBlock.getTransaction(), memoryBlock.getTransaction());
-            }
-        }
-        return null;
+    public List<Account> getLastLedger() {
+        return blockService.getLastBlock().getTransaction().getLedger();
     }
 
+    public List<Account> getHackedAccounts(List<Account> hackedLedger, List<Account> correctLedger) {
+        Collections.sort(hackedLedger);
+        Collections.sort(correctLedger);
+        List<Account> updatedLedger = new ArrayList<>();
 
+        for(int i=0; i<correctLedger.size(); i++) {
+            Account dbAccount = hackedLedger.get(i);
+            Account memoAccount = correctLedger.get(i);
+            if(!(dbAccount.toString().equals(memoAccount.toString()))) {
+                dbAccount.setHacked(true);
+            }
+
+            updatedLedger.add(dbAccount);
+        }
+        return updatedLedger;
+    }
 }
 
 //    public String calculateLastBlockHash(Block block) {
