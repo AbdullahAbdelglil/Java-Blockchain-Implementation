@@ -1,0 +1,317 @@
+{
+	"info": {
+		"_postman_id": "ec712ae4-23ad-400b-97ae-04055ae58570",
+		"name": "Blockchain",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31988765"
+	},
+	"item": [
+		{
+			"name": "Create_Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ownerName\":\"Abdullah\",\r\n    \"balance\":50000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/blockchain",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create_Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ownerName\":\"Ahmed\",\r\n    \"balance\":100000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/blockchain",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deposit",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/blockchain/deposit/in/AB009750520001/amount/10000",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain",
+						"deposit",
+						"in",
+						"AB009750520001",
+						"amount",
+						"10000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Withdraw",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/blockchain/withdraw/from/AH004530710001/amount/15000",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain",
+						"withdraw",
+						"from",
+						"AH004530710001",
+						"amount",
+						"15000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Bad_Withdraw",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/blockchain/withdraw/from/AB009256440001/amount/50000",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"blockchain",
+						"withdraw",
+						"from",
+						"AB009256440001",
+						"amount",
+						"50000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transfer",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/blockchain/transfer/from/AB009750520001/to/AH004530710001/amount/5000",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain",
+						"transfer",
+						"from",
+						"AB009750520001",
+						"to",
+						"AH004530710001",
+						"amount",
+						"5000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get History",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/blockchain/accounts/AH007819260001/history",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain",
+						"accounts",
+						"AH007819260001",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get History_2",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/blockchain/accounts/AB009750520001/history",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain",
+						"accounts",
+						"AB009750520001",
+						"history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Last Transaction",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/blockchain/accounts/AH001939960001/history/last-transaction",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain",
+						"accounts",
+						"AH001939960001",
+						"history",
+						"last-transaction"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transactions in period",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/blockchain/accounts/AB005595560001/history/from/1707207048137/to/1707207064766",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"blockchain",
+						"accounts",
+						"AB005595560001",
+						"history",
+						"from",
+						"1707207048137",
+						"to",
+						"1707207064766"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create_Account",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"ownerName\":\"Noor\",\r\n    \"balance\":50000\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8081/blockchain",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "New Request",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/blockchain/transfer/from/AB002659300001/to/AH008360340001/amount/5000",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"blockchain",
+						"transfer",
+						"from",
+						"AB002659300001",
+						"to",
+						"AH008360340001",
+						"amount",
+						"5000"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "blockchain",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/blockchain",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"blockchain"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
