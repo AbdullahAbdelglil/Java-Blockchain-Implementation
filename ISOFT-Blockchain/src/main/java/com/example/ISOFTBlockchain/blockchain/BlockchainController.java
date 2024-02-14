@@ -37,20 +37,26 @@ public class BlockchainController {
     }
 
     @GetMapping("/accounts/{accountNumber}/history")
-    public List<Transaction> getAccountHistory(@PathVariable("accountNumber") String accountNumber) {
+    public List<Block> getAccountHistory(@PathVariable("accountNumber") String accountNumber) {
         return blockchainServices.getAccountHistory(accountNumber);
     }
 
     @GetMapping("/accounts/{accountNumber}/history/last-transaction")
-    public Transaction getLastTransaction(@PathVariable("accountNumber") String accountNumber) {
+    public Block getLastTransaction(@PathVariable("accountNumber") String accountNumber) {
         return blockchainServices.getLastTransaction(accountNumber);
     }
 
     @GetMapping("/accounts/{accountNumber}/history/from/{start}/to/{end}")
-    public List<Transaction> getTransactionsInPeriod(@PathVariable("accountNumber") String accountNumber,
-                                          @PathVariable("start") Long start,
-                                          @PathVariable("end") Long end) {
+    public List<Block> getTransactionsWithinPeriod(@PathVariable("accountNumber") String accountNumber,
+                                                   @PathVariable("start") Long start,
+                                                   @PathVariable("end") Long end) {
         return blockchainServices.getTransactionsInPeriod(accountNumber, start, end);
+    }
+
+    @GetMapping("/accounts/{accountNumber}/history/in/{time}")
+    public Block getTransactionsInTime(@PathVariable("accountNumber") String accountNumber,
+                                       @PathVariable("time") Long time) {
+        return blockchainServices.getTransactionInTime(accountNumber, time);
     }
 
     @PutMapping("/deposit/in/{accountNumber}/amount/{amount}")

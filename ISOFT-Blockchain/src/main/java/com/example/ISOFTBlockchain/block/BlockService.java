@@ -20,6 +20,22 @@ public class BlockService {
         return blockRepository.findAll();
     }
 
+    public List<Block> getAccountHistory(String accountNumber) {
+        return blockRepository.getBlocksByTransactionSenderAccountNumberIsOrTransactionReceiverAccountNumberIs(accountNumber, accountNumber);
+    }
+
+    public List<Block> getAccountHistoryWithinPeriod(String accountNumber, Long start, Long end) {
+        return blockRepository.getBlocksByTransactionSenderAccountNumberIsOrTransactionReceiverAccountNumberIsAndTimestampBetween(accountNumber, accountNumber, start, end);
+    }
+
+    public Block getTransactionInTime(String accountNumber, Long timestamp) {
+        return blockRepository.getBlocksByTransactionSenderAccountNumberAndTimestampIs(accountNumber, timestamp);
+    }
+
+    public Block getLastTransaction(String accountNumber) {
+        return blockRepository.getBlocksByTransactionSenderAccountNumberIsOrTransactionReceiverAccountNumberIsOrderByTimestampDesc(accountNumber, accountNumber).get(0);
+    }
+
     public Block getLastBlock() {
         List<Block> blocks = getBlockchain();
         if (blocks.isEmpty()) return null;

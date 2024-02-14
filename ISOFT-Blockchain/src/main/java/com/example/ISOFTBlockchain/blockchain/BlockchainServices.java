@@ -22,7 +22,7 @@ public class BlockchainServices {
     private final AccountService accountService;
     private static BlockService blockService;
     private static HazelcastInstance hazelcast = Hazelcast.newHazelcastInstance();
-   private static IList<Block> IBlockchain = hazelcast.getList("blockchain");
+    private static IList<Block> IBlockchain = hazelcast.getList("blockchain");
     private static List<Block> blockchain = new ArrayList<>();
 
 
@@ -142,27 +142,35 @@ public class BlockchainServices {
     }
 
     public Account getAccount(String accountNumber) {
-        Account dbaccount = accountService.getAccount(accountNumber);
-        if (dbaccount == null) {
+        Account dbAccount = accountService.getAccount(accountNumber);
+        if (dbAccount == null) {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
         }
 
-        return dbaccount;
+        return dbAccount;
     }
 
-    public List<Transaction> getAccountHistory(String accountNumber) {
-        return accountService.getAccountHistory(accountNumber);
+    public List<Block> getAccountHistory(String accountNumber) {
+        return blockService.getAccountHistory(accountNumber);
     }
 
-    public Transaction getLastTransaction(String accountNumber) {
-        getAccount(accountNumber);
-        return accountService.getLastTransaction(accountNumber);
+    public Block getLastTransaction(String accountNumber) {
+        return blockService.getLastTransaction(accountNumber);
     }
 
-    public List<Transaction> getTransactionsInPeriod(String accountNumber, Long start, Long end) {
-        getAccount(accountNumber);
-        return accountService.getAccountHistoryInPeriod(accountNumber, start, end);
+    public List<Block> getTransactionsInPeriod(String accountNumber, Long start, Long end) {
+        if(start.equals(end)) {
+            List<Block> blocks = new ArrayList<>();
+            blocks.add(blockService.getTransactionInTime(accountNumber, start));
+            return blocks;
+        }
+        return blockService.getAccountHistoryWithinPeriod(accountNumber, start, end);
     }
+
+    public Block getTransactionInTime(String accountNumber, Long timeStamp) {
+        return blockService.getTransactionInTime(accountNumber, timeStamp);
+    }
+
 
     public Block recordTransaction(Block block, Account sender, Account receiver, Transaction transaction) {
         if ((hazelcast.getLifecycleService().isRunning())) {
@@ -178,11 +186,10 @@ public class BlockchainServices {
         }
 
         accountService.save(sender);
-        accountService.saveTransaction(sender.getAccountNumber(), transaction);
         if (receiver != null) {
             accountService.save(receiver);
-            accountService.saveTransaction(receiver.getAccountNumber(), transaction);
         }
+
         transaction.setTimeStamp(block.getTimestamp());
         blockService.save(block);
         return block;

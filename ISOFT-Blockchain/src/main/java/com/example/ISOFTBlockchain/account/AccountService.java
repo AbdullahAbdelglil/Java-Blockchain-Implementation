@@ -13,7 +13,6 @@ import java.util.Map;
 public class AccountService {
 
     private final AccountRepository accountRepository;
-    private Map<String, List<Transaction>> accountsHistory;
 
     @Autowired
     public AccountService(AccountRepository accountRepository) {
@@ -30,46 +29,6 @@ public class AccountService {
 
     public List<Account> getAllAccounts() {
         return accountRepository.findAll();
-    }
-
-    public void saveTransaction(String accountNumber, Transaction transaction) {
-        if (accountsHistory == null) {
-            accountsHistory = new HashMap<>();
-        }
-
-        List<Transaction> transactions = accountsHistory.get(accountNumber);
-        if (transactions == null) {
-            transactions = new ArrayList<>();
-        }
-
-        transactions.add(transaction);
-        accountsHistory.put(accountNumber, transactions);
-    }
-    public List<Transaction> getAccountHistory(String accountNumber) {
-        return accountsHistory.get(accountNumber);
-    }
-
-    public List<Transaction> getAccountHistoryInPeriod(String accountNumber, Long start, Long end) {
-        List<Transaction> history = accountsHistory.get(accountNumber);
-        List<Transaction> transactions = new ArrayList<>();
-
-        for(Transaction transaction: history) {
-            if(transaction.getTimeStamp()>= start && transaction.getTimeStamp()<= end) {
-                transactions.add(transaction);
-            }
-        }
-
-        return transactions;
-    }
-
-    public Transaction getLastTransaction(String accountNumber) {
-        List<Transaction> history = accountsHistory.get(accountNumber);
-
-        if(history==null) {
-            return null;
-        }
-
-        return history.get(history.size()-1);
     }
 
 }

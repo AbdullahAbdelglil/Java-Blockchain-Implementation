@@ -21,7 +21,7 @@ public class BlockchainController {
 
     @GetMapping("")
     public List<Block> getBlockchain() {
-        return blockchainServices.getBlockchain();
+        return blockchainServices.getInMemoryBlockchain();
     }
 
     @PostMapping("")
