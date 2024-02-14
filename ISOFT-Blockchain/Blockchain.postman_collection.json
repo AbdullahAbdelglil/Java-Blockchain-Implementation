@@ -176,27 +176,6 @@
 			"response": []
 		},
 		{
-			"name": "Get History_2",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "localhost:8081/blockchain/accounts/AB009750520001/history",
-					"host": [
-						"localhost"
-					],
-					"port": "8081",
-					"path": [
-						"blockchain",
-						"accounts",
-						"AB009750520001",
-						"history"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Get Last Transaction",
 			"request": {
 				"method": "GET",
@@ -219,7 +198,7 @@
 			"response": []
 		},
 		{
-			"name": "Transactions in period",
+			"name": "Transactions in time",
 			"request": {
 				"method": "GET",
 				"header": [],
@@ -238,6 +217,27 @@
 						"1707207048137",
 						"to",
 						"1707207064766"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transactions in period",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8081/blockchain/accounts/AB009750520001/history",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"blockchain",
+						"accounts",
+						"AB009750520001",
+						"history"
 					]
 				}
 			},
