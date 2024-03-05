@@ -8,6 +8,9 @@ public class HackedTransaction{
     private Transaction Hacked_Transaction;
     private Transaction Correct_Transaction;
 
+    public HackedTransaction() {
+    }
+
     public HackedTransaction(String error_Message, Transaction hacked_Transaction, Transaction correct_Transaction) {
         Error_Message = error_Message;
         Hacked_Transaction = hacked_Transaction;

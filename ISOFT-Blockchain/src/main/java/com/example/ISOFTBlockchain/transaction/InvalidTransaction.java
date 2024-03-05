@@ -1,9 +1,5 @@
 package com.example.ISOFTBlockchain.transaction;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-
 public class InvalidTransaction {
     private String Error_Message;
     public InvalidTransaction() {

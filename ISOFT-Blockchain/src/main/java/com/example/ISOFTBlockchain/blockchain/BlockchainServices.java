@@ -6,6 +6,7 @@ import com.example.ISOFTBlockchain.account.AccountService;
 import com.example.ISOFTBlockchain.account.HackedAccount;
 import com.example.ISOFTBlockchain.block.Block;
 import com.example.ISOFTBlockchain.block.BlockService;
+import com.example.ISOFTBlockchain.networking.Client;
 import com.example.ISOFTBlockchain.transaction.HackedTransaction;
 import com.example.ISOFTBlockchain.constants.Constants;
 import com.example.ISOFTBlockchain.transaction.InvalidTransaction;
@@ -15,48 +16,97 @@ import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+import java.net.Socket;
 import java.util.*;
 
 @Service
 public class BlockchainServices {
-    private final AccountService accountService;
-    private static BlockService blockService;
-    private static HazelcastInstance hazelcast = Hazelcast.newHazelcastInstance();
-    private static IList<Block> IBlockchain = hazelcast.getList("blockchain");
-    private static List<Block> blockchain = new ArrayList<>();
-
+    private static AccountService accountService;
+    private static BlockService blockService ;
+    private static final HazelcastInstance hazelcast = Hazelcast.newHazelcastInstance();
+    private static final IList<Block> IBlockchain = hazelcast.getList("blockchain");
+    public static final Map<String, Client> clients = new HashMap<>();
+    public static final List<Client> miners = new ArrayList<>();
 
     //-------------------------------------------------Constructor------------------------------------------------------
 
-    public BlockchainServices(AccountService accountService, BlockService blockService) {
-        this.accountService = accountService;
-        this.blockService = blockService;
+    public BlockchainServices(AccountService accService, BlockService blockService) {
+        BlockchainServices.accountService = accService;
+        BlockchainServices.blockService = blockService;
     }
 
     //----------------------------------------------------Init----------------------------------------------------------
 
     public static void init() {
         Block lastBlock = blockService.getLastBlock();
-        if (lastBlock != null) {
+        if (lastBlock != null ) {
             IBlockchain.add(lastBlock);
-            blockchain.add(lastBlock);
+        }
+        List<Account> offlineClients = lastBlock.getTransaction().getLedger();
+        for(Account account:offlineClients) {
+            Client client = createClient(account);
+            persistClient(client);
+            client.updateLedger();
         }
     }
 
     //----------------------------------------------Account Services----------------------------------------------------
 
     public Object createAccount(Account acc) {
-
         Account account = new Account(acc.getOwnerName(), acc.getBalance());
+
         Transaction transaction = buildTransaction(Constants.ACCOUNT_CREATED, account, null, account.getBalance());
+        boolean validTransaction = isValidTransaction(transaction);
 
-        Block block = new Block(transaction, getLastHash());
-        mine(block);
+        if(validTransaction) {
+            Block block = new Block(transaction, getLastHash());
+            Client client = createClient(account);
+            Client miner = ((miners.isEmpty())?client:getTheMiner());
 
-        if ( block.getPreviousHash().equals(Constants.GENESIS_PREV_HASH) || isValidBlockchain() == (Boolean) true) {
-            return recordTransaction(block, account, null, transaction);
+            block = miner.mine(block);
+
+            if(block.getPreviousHash().equals(Constants.GENESIS_PREV_HASH) && isValidBlock(block)) {
+                printTheBlockMakerInfo(miner);
+                persistClient(client);
+                return recordTransaction(block, account, null, transaction);
+            }
+            else {
+                if (isValidBlock(block) && (isValidBlockchain() instanceof Boolean)) {
+                    persistClient(client);
+                    printTheBlockMakerInfo(miner);
+                    return recordTransaction(block, account, null, transaction);
+                }
+                else {
+                    return isValidBlockchain();
+                }
+            }
         }
-        return isValidBlockchain();
+        return new InvalidTransaction("Invalid Transaction");
+    }
+
+    private static Client createClient(Account account) {
+        try {
+            Socket socket = new Socket("localhost",2024);
+            return new Client(socket, account, IBlockchain);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private static void persistClient(Client client) {
+        String accountNumber = client.getAccount().getAccountNumber();
+        System.out.println(
+                "\n--------------------------\n"+
+                        accountNumber+" Active now !"+
+                        "\n--------------------------\n");
+
+        clients.put(accountNumber, client);
+        if(miners.size()<Constants.MINERS_LIMIT) {
+            miners.add(client);
+            client.setMiner(true);
+        }
     }
 
     public Object withdraw(String accountNumber, Double amount) {
@@ -66,22 +116,29 @@ public class BlockchainServices {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
         }
 
-        Double balance = dbAccount.getBalance();
-        if (balance < amount || amount < 0) {
+        Transaction transaction = buildTransaction(Constants.WITHDRAW, dbAccount, null, amount);
+        boolean validTransaction = isValidTransaction(transaction);
+
+        if (validTransaction) {
+
+            Double balance = dbAccount.getBalance();
+            balance -= amount;
+            dbAccount.setBalance(balance);
+
+            Block block = new Block(transaction, getLastHash());
+            Client client = clients.get(accountNumber);
+            Client miner = ((client.isMiner()) ? client : getTheMiner());
+            block = miner.mine(block);
+            printTheBlockMakerInfo(miner);
+
+            if (isValidBlock(block) && (isValidBlockchain() instanceof Boolean)) {
+                return recordTransaction(block, dbAccount, null, transaction);
+            } else {
+                return isValidBlockchain();
+            }
+        } else {
             return new InvalidTransaction(Constants.SUFFICIENT_FUNDS);
         }
-
-        balance -= amount;
-        dbAccount.setBalance(balance);
-        Transaction transaction = buildTransaction(Constants.WITHDRAW, dbAccount, null, amount);
-
-        Block block = new Block(transaction, getLastHash());
-        mine(block);
-
-        if (isValidBlockchain() == (Boolean) true) {
-            return recordTransaction(block, dbAccount, null, transaction);
-        }
-        return isValidBlockchain();
     }
 
     public Object deposit(String accountNumber, Double amount) {
@@ -91,22 +148,30 @@ public class BlockchainServices {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
         }
 
-        Double balance = dbAccount.getBalance();
-        if (amount < 0) {
+        Transaction transaction = buildTransaction(Constants.DEPOSIT, dbAccount, null, amount);
+        boolean validTransaction = isValidTransaction(transaction);
+
+        if(validTransaction) {
+
+            Double balance = dbAccount.getBalance();
+            balance += amount;
+            dbAccount.setBalance(balance);
+
+            Block block = new Block(transaction, getLastHash());
+            Client client = clients.get(accountNumber);
+            Client miner = ((client.isMiner())?client:getTheMiner());
+            block  = miner.mine(block);
+            printTheBlockMakerInfo(miner);
+
+            if (isValidBlock(block) && (isValidBlockchain() instanceof Boolean)) {
+                return recordTransaction(block, dbAccount, null, transaction);
+            } else {
+                return isValidBlockchain();
+            }
+        }
+        else {
             return new InvalidTransaction(Constants.SUFFICIENT_FUNDS);
         }
-
-        balance += amount;
-        dbAccount.setBalance(balance);
-        Transaction transaction = buildTransaction(Constants.DEPOSIT, dbAccount, null, amount);
-
-        Block block = new Block(transaction, getLastHash());
-        mine(block);
-
-        if (isValidBlockchain() == (Boolean) true) {
-            return recordTransaction(block, dbAccount, null, transaction);
-        }
-        return isValidBlockchain();
     }
 
     public Object transfer(String fromAccountNumber, String toAccountNumber, Double amount) {
@@ -117,31 +182,64 @@ public class BlockchainServices {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
         }
 
-        Double senderBalance = sender.getBalance();
-        Double receiverBalance = receiver.getBalance();
+        Transaction transaction = buildTransaction(Constants.TRANSFER, sender, receiver, amount);
+        boolean validTransaction = isValidTransaction(transaction);
 
-        if (senderBalance < amount || amount < 0) {
+        if (validTransaction) {
+
+            Double senderBalance = sender.getBalance();
+            Double receiverBalance = receiver.getBalance();
+
+            senderBalance -= amount;
+            receiverBalance += amount;
+            sender.setBalance(senderBalance);
+            receiver.setBalance(receiverBalance);
+
+            Client senderClient = clients.get(fromAccountNumber);
+            Client recieverClient = clients.get(toAccountNumber);
+            Client miner;
+
+            if (senderClient.isMiner() && recieverClient.isMiner()) {
+                miner = ((senderBalance + amount > receiverBalance - amount) ? senderClient : recieverClient);
+            } else if (senderClient.isHackedClient() || receiver.isMiner()) {
+                miner = ((senderClient.isMiner()) ? senderClient : recieverClient);
+            } else {
+                miner = getTheMiner();
+            }
+
+            Block block = new Block(transaction, getLastHash());
+            block = miner.mine(block);
+            printTheBlockMakerInfo(miner);
+
+            if (isValidBlock(block) && (isValidBlockchain() instanceof Boolean)) {
+                return recordTransaction(block, sender, receiver, transaction);
+            } else {
+                return isValidBlockchain();
+            }
+        } else {
             return new InvalidTransaction(Constants.SUFFICIENT_FUNDS);
         }
-
-        senderBalance -= amount;
-        receiverBalance += amount;
-        sender.setBalance(senderBalance);
-        receiver.setBalance(receiverBalance);
-        Transaction transaction = buildTransaction(Constants.TRANSFER, sender, receiver, amount);
-
-        Block block = new Block(transaction, getLastHash());
-        mine(block);
-
-        if (isValidBlockchain() == (Boolean) true) {
-            Object result = recordTransaction(block, sender, receiver, transaction);
-            return result;
-        }
-
-        return isValidBlockchain();
     }
 
-    public Account getAccount(String accountNumber) {
+    private Client getTheMiner() {
+        Client miner = miners.get(0);
+        for(int i=1; i<miners.size(); i++) {
+            Client currentMiner = miners.get(i);
+            if(miner.getAccount().getBalance() < currentMiner.getAccount().getBalance()) {
+                miner = currentMiner;
+            }
+        }
+        return miner;
+    }
+
+    private void printTheBlockMakerInfo(Client miner) {
+        System.out.println("\n--------------------------\n"+
+                "Block Maker: "+ miner.getAccount().getAccountNumber()+
+                "\n--------------------------\n");
+    }
+
+    //------------------------------------------Account Services--------------------------------------------------------
+    public static Account getAccount(String accountNumber) {
         Account dbAccount = accountService.getAccount(accountNumber);
         if (dbAccount == null) {
             return new AccountNotFound(Constants.ACCOUNT_NOT_FOUND);
@@ -171,57 +269,32 @@ public class BlockchainServices {
         return blockService.getTransactionInTime(accountNumber, timeStamp);
     }
 
+    //------------------------------------------------------------------------------------------------------------------
 
     public Block recordTransaction(Block block, Account sender, Account receiver, Transaction transaction) {
-        if ((hazelcast.getLifecycleService().isRunning())) {
-            Block lastBlock = blockService.getLastBlock();
-            if (IBlockchain.isEmpty() && lastBlock != null) {
-                IBlockchain.add(lastBlock);
-            }
-            IBlockchain.add(block);
-            blockchain.clear();
-            blockchain.add(block);
-        } else {
-            blockchain.add(block);
-        }
-
-        accountService.save(sender);
-        if (receiver != null) {
-            accountService.save(receiver);
-        }
-
         transaction.setTimeStamp(block.getTimestamp());
+        IBlockchain.add(block);
+        broadcastBlock();
+        accountService.save(sender);
+        if (receiver != null) accountService.save(receiver);
         blockService.save(block);
         return block;
+
+    }
+
+    public void broadcastBlock() {
+        for (Client client : clients.values()) {
+            client.setBlockchain(IBlockchain);
+        }
     }
 
     //----------------------------------------------Blockchain Services-------------------------------------------------
 
-    public List<Block> getInMemoryBlockchain() {
-        if(hazelcast.getLifecycleService().isRunning()) return IBlockchain ;
-        else
-            return blockchain;
+    public static List<Block> getInMemoryBlockchain(String accountNumber) {
+        return clients.get(accountNumber).getBlockchain();
     }
 
     //---------------------------------------------Helper Methods-------------------------------------------------------
-
-    public void mine(Block block) {
-        String hash = block.getHash();
-
-        while (!AcceptedHash(hash)) {
-            block.setHash();
-            block.incrementNonce();
-            hash = block.getHash();
-        }
-
-    }
-
-    private boolean AcceptedHash(String hash) {
-        char[] difficulty = new char[Constants.DIFFICULTY];
-        String leadingZeros = new String(difficulty).replace('\0', '0');
-
-        return (hash.substring(0, Constants.DIFFICULTY).equals(leadingZeros));
-    }
 
     private Transaction buildTransaction(String transactionType, Account sender, Account receiver, Double amount) {
         Transaction transaction = new Transaction();
@@ -255,11 +328,65 @@ public class BlockchainServices {
         return transaction;
     }
 
+    public boolean isValidTransaction(Transaction transaction) {
+        if (clients.isEmpty()) return true;
+
+        int counter = 0;
+        int clientsSize = clients.size();
+
+        System.out.println(transaction.getTransactionType()+"\n--------------------------\n");
+        for (Client client : clients.values()) {
+            if(client.isHackedClient()) {
+                System.out.println(client.getAccount().getAccountNumber() + ": Im Hacked :(");
+                clientsSize--;
+            }
+            else {
+                if (client.isValidTransaction(transaction)) {
+                    System.out.println(client.getAccount().getAccountNumber() + ": ✔ Valid Transaction");
+                    counter++;
+                } else {
+                    System.out.println(client.getAccount().getAccountNumber() + ": ❌ Invalid Transaction");
+                }
+            }
+        }
+        System.out.println("\n--------------------------\n");
+
+        return (counter == clientsSize);
+    }
+
+    public boolean isValidBlock(Block block) {
+        if(miners.isEmpty()) return true;
+
+        int counter = 0;
+        int minersSize = miners.size();
+
+        System.out.println("\n--------------------------\n");
+        for (Client miner : miners) {
+            if(miner.isHackedClient()) {
+                System.out.println(miner.getAccount().getAccountNumber() + ": Im Hacked :(");
+                minersSize--;
+            }
+            else {
+                if (miner.isValidBlockchain() && miner.isValidBlock(block)) {
+                    System.out.println(miner.getAccount().getAccountNumber() + ": ✔ Valid Block");
+                    counter++;
+                } else {
+                    System.out.println(miner.getAccount().getAccountNumber() + ": ❌ Invalid Block");
+                }
+            }
+        }
+        System.out.println("\n--------------------------\n");
+
+        return  (counter==minersSize);
+    }
+
     public String getLastHash() {
         Block lastBlock = blockService.getLastBlock();
         String lastBlockHash = ((lastBlock == null) ? Constants.GENESIS_PREV_HASH : lastBlock.getHash());
         return lastBlockHash;
     }
+
+
 
     public Object isValidBlockchain() {
         List<HackedAccount> accountsTest = verifyAccounts();
@@ -273,9 +400,7 @@ public class BlockchainServices {
 
     public List<HackedAccount> verifyAccounts() {
         List<Account> dbAccounts = accountService.getAllAccounts();
-        List<Account> memoryAccounts = ((hazelcast.getLifecycleService().isRunning()) ?
-                IBlockchain.get(IBlockchain.size() - 1).getTransaction().getLedger() :
-                blockchain.get(blockchain.size() - 1).getTransaction().getLedger());
+        List<Account> memoryAccounts = IBlockchain.get(IBlockchain.size() - 1).getTransaction().getLedger() ;
 
         Collections.sort(dbAccounts);
         Collections.sort(memoryAccounts);
@@ -294,6 +419,7 @@ public class BlockchainServices {
             HackedAccount hackedAccount;
             if (!(dbAccount.toString().equals(memoryAccount.toString()))) {
                 hackedAccount = new HackedAccount();
+                hackedAccount.setError_Message(Constants.ACCOUNTS_DB_HACKED_ERROR);
                 hackedAccount.setHacked_Account(dbAccount);
                 hackedAccount.setCorrect_Account(memoryAccount);
                 hackedAccounts.add(hackedAccount);
@@ -306,23 +432,24 @@ public class BlockchainServices {
         Transaction lastTransactionDB = blockService.getLastBlock().getTransaction();
         Transaction lastTransactionMemory;
 
-        if((hazelcast.getLifecycleService().isRunning())) {
-            lastTransactionMemory = IBlockchain.get(IBlockchain.size()-1).getTransaction();
-        }
-        else {
-            lastTransactionMemory = blockchain.get(blockchain.size() - 1).getTransaction();
-        }
-
+        lastTransactionMemory = IBlockchain.get(IBlockchain.size() - 1).getTransaction();
 
         if (!lastTransactionMemory.toString().equals(lastTransactionDB.toString())) {
             lastTransactionDB.setLedger(getHackedAccounts(lastTransactionDB.getLedger(), lastTransactionMemory.getLedger()));
-            return new HackedTransaction(Constants.LEDGER_HACKED_ERROR, lastTransactionDB, lastTransactionMemory);
+            HackedTransaction hackedTransaction = new HackedTransaction();
+            hackedTransaction.setError_Message(Constants.TRANSACTION_HACKED_ERROR);
+            hackedTransaction.setHacked_Transaction(lastTransactionDB);
+            hackedTransaction.setCorrect_Transaction(lastTransactionMemory);
+            return hackedTransaction;
         }
         return null;
     }
 
-    public List<Account> getLastLedger() {
-        return blockService.getLastBlock().getTransaction().getLedger();
+    public static List<Account> getLastUpdatedLedger() {
+        if (blockService.getLastBlock() != null) {
+            return blockService.getLastBlock().getTransaction().getLedger();
+        }
+        return null;
     }
 
     public List<Account> getHackedAccounts(List<Account> hackedLedger, List<Account> correctLedger) {
@@ -342,27 +469,3 @@ public class BlockchainServices {
         return updatedLedger;
     }
 }
-
-//    public String calculateLastBlockHash(Block block) {
-//        int last = IBlockchain.size() - 1;
-//        Block lastBlock = IBlockchain.get(last);
-//        Block updatedBlock = new Block();
-//
-//        System.out.println("hash-1: " + lastBlock.getHash());
-//
-//        Transaction lastTransaction = lastBlock.getTransaction();
-//        System.out.println("trans-1:" + lastTransaction);
-//        List<Account> dbLedger = (accountService.getAllAccounts());
-//        lastTransaction.setLedger(dbLedger);
-//
-//        updatedBlock.setTransaction(lastTransaction);
-//        updatedBlock.setTimestamp(lastBlock.getTimestamp());
-//        updatedBlock.setPreviousHash(lastBlock.getPreviousHash());
-//        updatedBlock.setNonce(0);
-//        updatedBlock.setHash();
-//        String hash = mine(updatedBlock);
-//
-//        System.out.println("hash-2: " + hash);
-//        System.out.println("trans-2:" + lastTransaction);
-//        return hash;
-//    }

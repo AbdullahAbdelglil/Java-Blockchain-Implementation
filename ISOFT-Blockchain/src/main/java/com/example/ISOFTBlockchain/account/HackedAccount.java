@@ -1,7 +1,6 @@
 package com.example.ISOFTBlockchain.account;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.NoArgsConstructor;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HackedAccount {

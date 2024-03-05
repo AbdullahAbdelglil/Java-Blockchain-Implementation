@@ -1,27 +1,22 @@
 package com.example.ISOFTBlockchain.block;
 
 import com.example.ISOFTBlockchain.transaction.Transaction;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.security.MessageDigest;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 @Document(collection = "blockchain")
 
 public class Block {
-
     private String hash;
-
     private String previousHash;
-
     private int nonce;
-
     private Long timestamp;
-
     private Transaction transaction;
+
 
     public Block() {
     }

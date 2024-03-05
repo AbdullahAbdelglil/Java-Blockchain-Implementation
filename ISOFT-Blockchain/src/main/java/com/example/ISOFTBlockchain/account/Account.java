@@ -20,6 +20,8 @@ public class Account implements Comparable<Account> {
     private Double balance;
     private Long creationDate;
     private boolean hacked;
+    @JsonIgnore
+    private boolean isMiner;
 
     public Account() {
     }
@@ -86,6 +88,14 @@ public class Account implements Comparable<Account> {
         accountNumber.append("0001");
 
         return accountNumber.toString();
+    }
+
+    public boolean isMiner() {
+        return isMiner;
+    }
+
+    public void setMiner(boolean miner) {
+        isMiner = miner;
     }
 
     @Override

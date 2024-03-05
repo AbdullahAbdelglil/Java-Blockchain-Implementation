@@ -22,6 +22,8 @@ public class Transaction {
 
     @JsonIgnore
     private Long timeStamp;
+    @JsonIgnore
+    private boolean validTransaction;
 
     public String getTransactionType() {
         return transactionType;
@@ -69,6 +71,14 @@ public class Transaction {
 
     public void setTimeStamp(Long timeStamp) {
         this.timeStamp = timeStamp;
+    }
+
+    public boolean isValidTransaction() {
+        return validTransaction;
+    }
+
+    public void setValidTransaction(boolean validTransaction) {
+        this.validTransaction = validTransaction;
     }
 
     @Override

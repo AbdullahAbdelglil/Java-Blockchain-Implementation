@@ -12,4 +12,5 @@ public interface BlockRepository extends MongoRepository<Block, String> {
     Block getBlockByTimestampEqualsAndTransactionSenderAccountNumberEqualsOrTransactionReceiverAccountNumberEquals(Long timestamp, String transaction_sender_accountNumber, String transaction_receiver_accountNumber);
 
     List<Block> getBlocksByTransactionSenderAccountNumberEqualsOrTransactionReceiverAccountNumberEqualsOrderByTimestampDesc(String accountNumber, String account_Number);
+
 }

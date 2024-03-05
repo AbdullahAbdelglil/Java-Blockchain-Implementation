@@ -40,7 +40,9 @@ public class BlockService {
 
     public Block getLastBlock() {
         List<Block> blocks = getBlockchain();
-        if (blocks.isEmpty()) return null;
+        if (blocks.isEmpty()) {
+            return null;
+        }
         return blocks.get(blocks.size() - 1);
     }
 

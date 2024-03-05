@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="5670dbc1-dc33-4743-a7d2-abd02ee06077" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Java-Blockchain-Implementation.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/IsoftBlockchainApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/IsoftBlockchainApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/account/Account.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/account/Account.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/account/AccountNotFound.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/account/AccountNotFound.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/account/HackedAccount.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/account/HackedAccount.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/block/Block.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/block/Block.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/block/BlockRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/block/BlockRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/block/BlockService.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/block/BlockService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/blockchain/BlockchainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/blockchain/BlockchainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/blockchain/BlockchainServices.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/blockchain/BlockchainServices.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/constants/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/constants/Constants.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/controller/BlockchainController.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/controller/BlockchainController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/transaction/HackedTransaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/transaction/HackedTransaction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/transaction/InvalidTransaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/transaction/InvalidTransaction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/transaction/Transaction.java" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/transaction/Transaction.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/ISOFT-Blockchain/src/main/resources/application.properties" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 5
+}</component>
+  <component name="ProjectId" id="2d2JjF8e31Zhm2ajwzS8qjPTZPu" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Application.Server.executor&quot;: &quot;Run&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Spring Boot.IsoftBlockchainApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Abdullah.Zaky/Desktop/Java-Blockchain-Implementation-old version/ISOFT-Blockchain/src/main/java/com/example/ISOFTBlockchain/block&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Abdullah.Zaky\Desktop\Java-Blockchain-Implementation-old version\ISOFT-Blockchain\src\main\java\com\example\ISOFTBlockchain\block" />
+      <recent name="C:\Users\Abdullah.Zaky\Desktop\Java-Blockchain-Implementation-old version\ISOFT-Blockchain\src\main\java\com\example\ISOFTBlockchain\account" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Spring Boot.IsoftBlockchainApplication">
+    <configuration name="Server" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.ISOFTBlockchain.networking.Server" />
+      <module name="ISOFT-Blockchain" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.ISOFTBlockchain.networking.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="IsoftBlockchainApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="ISOFT-Blockchain" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.example.ISOFTBlockchain.IsoftBlockchainApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Server" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="5670dbc1-dc33-4743-a7d2-abd02ee06077" name="Changes" comment="" />
+      <created>1709200373761</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1709200373761</updated>
+      <workItem from="1709200375592" duration="614000" />
+      <workItem from="1709216855227" duration="7645000" />
+      <workItem from="1709465080144" duration="2532000" />
+      <workItem from="1709484632754" duration="13329000" />
+      <workItem from="1709619797677" duration="13569000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
