@@ -17,16 +17,7 @@ public class Client {
     private Account account;
     private Map<String, Account> accounts = new HashMap<>();
     private List<Block> blockchain;
-
     private boolean isMiner;
-
-    public boolean isMiner() {
-        return isMiner;
-    }
-
-    public void setMiner(boolean miner) {
-        isMiner = miner;
-    }
 
     public Client(Socket socket, Account account, List<Block> blockchain) {
         this.socket = socket;
@@ -131,13 +122,12 @@ public class Client {
         return (hash.substring(0, Constants.DIFFICULTY).equals(leadingZeros));
     }
 
-    public void closeConnection() {
-        try {
-            if(socket!=null) {
-                socket.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public boolean isMiner() {
+        return isMiner;
     }
+
+    public void setMiner(boolean miner) {
+        isMiner = miner;
+    }
+
 }

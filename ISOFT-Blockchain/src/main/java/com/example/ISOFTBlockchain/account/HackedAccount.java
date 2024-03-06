@@ -5,42 +5,33 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HackedAccount {
 
-    private String Error_Message;
 
-    private Account Hacked_Account;
 
-    private Account Correct_Account;
+    private Account hackedAccount;
+
+    private Account correctAccount;
 
     public HackedAccount() {
     }
 
-    public HackedAccount(String error_Message, Account hacked_Account, Account correct_Account) {
-        this.Error_Message = error_Message;
-        this.Hacked_Account = hacked_Account;
-        this.Correct_Account = correct_Account;
+    public HackedAccount(Account hacked_Account, Account correct_Account) {
+        this.hackedAccount = hacked_Account;
+        this.correctAccount = correct_Account;
     }
 
-    public String getError_Message() {
-        return Error_Message;
+    public Account getHackedAccount() {
+        return hackedAccount;
     }
 
-    public void setError_Message(String error_Message) {
-        Error_Message = error_Message;
+    public void setHackedAccount(Account hackedAccount) {
+        this.hackedAccount = hackedAccount;
     }
 
-    public Account getHacked_Account() {
-        return Hacked_Account;
+    public Account getCorrectAccount() {
+        return correctAccount;
     }
 
-    public void setHacked_Account(Account hacked_Account) {
-        Hacked_Account = hacked_Account;
-    }
-
-    public Account getCorrect_Account() {
-        return Correct_Account;
-    }
-
-    public void setCorrect_Account(Account correct_Account) {
-        Correct_Account = correct_Account;
+    public void setCorrectAccount(Account correctAccount) {
+        this.correctAccount = correctAccount;
     }
 }

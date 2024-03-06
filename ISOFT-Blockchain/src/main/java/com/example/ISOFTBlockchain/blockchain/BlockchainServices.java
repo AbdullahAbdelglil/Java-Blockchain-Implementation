@@ -14,6 +14,7 @@ import com.example.ISOFTBlockchain.transaction.Transaction;
 import com.hazelcast.collection.IList;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -42,13 +43,14 @@ public class BlockchainServices {
         Block lastBlock = blockService.getLastBlock();
         if (lastBlock != null ) {
             IBlockchain.add(lastBlock);
+            List<Account> offlineClients = lastBlock.getTransaction().getLedger();
+            for(Account account:offlineClients) {
+                Client client = createClient(account);
+                persistClient(client);
+                client.updateLedger();
+            }
         }
-        List<Account> offlineClients = lastBlock.getTransaction().getLedger();
-        for(Account account:offlineClients) {
-            Client client = createClient(account);
-            persistClient(client);
-            client.updateLedger();
-        }
+
     }
 
     //----------------------------------------------Account Services----------------------------------------------------
@@ -62,7 +64,7 @@ public class BlockchainServices {
         if(validTransaction) {
             Block block = new Block(transaction, getLastHash());
             Client client = createClient(account);
-            Client miner = ((miners.isEmpty())?client:getTheMiner());
+            Client miner = ((miners.size()<Constants.MINERS_LIMIT)?client:getTheMiner());
 
             block = miner.mine(block);
 
@@ -332,20 +334,22 @@ public class BlockchainServices {
         if (clients.isEmpty()) return true;
 
         int counter = 0;
+        int i=0;
         int clientsSize = clients.size();
 
         System.out.println(transaction.getTransactionType()+"\n--------------------------\n");
         for (Client client : clients.values()) {
+            i++;
             if(client.isHackedClient()) {
-                System.out.println(client.getAccount().getAccountNumber() + ": Im Hacked :(");
+                System.out.println(i+") "+client.getAccount().getAccountNumber() + ": Im Hacked :(");
                 clientsSize--;
             }
             else {
                 if (client.isValidTransaction(transaction)) {
-                    System.out.println(client.getAccount().getAccountNumber() + ": ✔ Valid Transaction");
+                    System.out.println(i+") "+client.getAccount().getAccountNumber() + ": ✔ Valid Transaction");
                     counter++;
                 } else {
-                    System.out.println(client.getAccount().getAccountNumber() + ": ❌ Invalid Transaction");
+                    System.out.println(i+") "+client.getAccount().getAccountNumber() + ": ❌ Invalid Transaction");
                 }
             }
         }
@@ -358,20 +362,22 @@ public class BlockchainServices {
         if(miners.isEmpty()) return true;
 
         int counter = 0;
+        int i=0;
         int minersSize = miners.size();
 
         System.out.println("\n--------------------------\n");
         for (Client miner : miners) {
+            i++;
             if(miner.isHackedClient()) {
-                System.out.println(miner.getAccount().getAccountNumber() + ": Im Hacked :(");
+                System.out.println(i+") "+miner.getAccount().getAccountNumber() + ": Im Hacked :(");
                 minersSize--;
             }
             else {
                 if (miner.isValidBlockchain() && miner.isValidBlock(block)) {
-                    System.out.println(miner.getAccount().getAccountNumber() + ": ✔ Valid Block");
+                    System.out.println(i+") "+miner.getAccount().getAccountNumber() + ": ✔ Valid Block");
                     counter++;
                 } else {
-                    System.out.println(miner.getAccount().getAccountNumber() + ": ❌ Invalid Block");
+                    System.out.println(i+") "+miner.getAccount().getAccountNumber() + ": ❌ Invalid Block");
                 }
             }
         }
@@ -389,7 +395,7 @@ public class BlockchainServices {
 
 
     public Object isValidBlockchain() {
-        List<HackedAccount> accountsTest = verifyAccounts();
+        Map<String, List<HackedAccount>> accountsTest = verifyAccounts();
         Object blockchainTest = verifyBlockchain();
 
         if (blockchainTest == null && accountsTest == null) return true;
@@ -398,7 +404,7 @@ public class BlockchainServices {
         else return accountsTest;
     }
 
-    public List<HackedAccount> verifyAccounts() {
+    public Map<String, List<HackedAccount>> verifyAccounts() {
         List<Account> dbAccounts = accountService.getAllAccounts();
         List<Account> memoryAccounts = IBlockchain.get(IBlockchain.size() - 1).getTransaction().getLedger() ;
 
@@ -407,7 +413,10 @@ public class BlockchainServices {
 
         List<HackedAccount> hackedAccounts = getAccountsHacked(memoryAccounts, dbAccounts);
         if (hackedAccounts.isEmpty()) return null;
-        return hackedAccounts;
+
+        Map<String, List<HackedAccount>> response = new HashMap<>();
+        response.put(Constants.TRANSACTION_HACKED_ERROR, hackedAccounts);
+        return response;
     }
 
     private static List<HackedAccount> getAccountsHacked(List<Account> memoryAccounts, List<Account> dbAccounts) {
@@ -418,15 +427,13 @@ public class BlockchainServices {
             Account memoryAccount = memoryAccounts.get(i);
             HackedAccount hackedAccount;
             if (!(dbAccount.toString().equals(memoryAccount.toString()))) {
-                hackedAccount = new HackedAccount();
-                hackedAccount.setError_Message(Constants.ACCOUNTS_DB_HACKED_ERROR);
-                hackedAccount.setHacked_Account(dbAccount);
-                hackedAccount.setCorrect_Account(memoryAccount);
+                hackedAccount = new HackedAccount(dbAccount, memoryAccount);
                 hackedAccounts.add(hackedAccount);
             }
         }
         return hackedAccounts;
     }
+
 
     public Object verifyBlockchain() {
         Transaction lastTransactionDB = blockService.getLastBlock().getTransaction();
@@ -437,9 +444,9 @@ public class BlockchainServices {
         if (!lastTransactionMemory.toString().equals(lastTransactionDB.toString())) {
             lastTransactionDB.setLedger(getHackedAccounts(lastTransactionDB.getLedger(), lastTransactionMemory.getLedger()));
             HackedTransaction hackedTransaction = new HackedTransaction();
-            hackedTransaction.setError_Message(Constants.TRANSACTION_HACKED_ERROR);
-            hackedTransaction.setHacked_Transaction(lastTransactionDB);
-            hackedTransaction.setCorrect_Transaction(lastTransactionMemory);
+            hackedTransaction.setErrorMessage(Constants.TRANSACTION_HACKED_ERROR);
+            hackedTransaction.setHackedTransaction(lastTransactionDB);
+            hackedTransaction.setCorrectTransaction(lastTransactionMemory);
             return hackedTransaction;
         }
         return null;

@@ -4,41 +4,41 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class HackedTransaction{
-    private String Error_Message;
-    private Transaction Hacked_Transaction;
-    private Transaction Correct_Transaction;
+    private String errorMessage;
+    private Transaction hackedTransaction;
+    private Transaction correctTransaction;
 
     public HackedTransaction() {
     }
 
     public HackedTransaction(String error_Message, Transaction hacked_Transaction, Transaction correct_Transaction) {
-        Error_Message = error_Message;
-        Hacked_Transaction = hacked_Transaction;
-        Correct_Transaction = correct_Transaction;
+        errorMessage = error_Message;
+        hackedTransaction = hacked_Transaction;
+        correctTransaction = correct_Transaction;
     }
 
-    public String getError_Message() {
-        return Error_Message;
+    public String getErrorMessage() {
+        return errorMessage;
     }
 
-    public void setError_Message(String error_Message) {
-        Error_Message = error_Message;
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
-    public Transaction getHacked_Transaction() {
-        return Hacked_Transaction;
+    public Transaction getHackedTransaction() {
+        return hackedTransaction;
     }
 
-    public void setHacked_Transaction(Transaction hacked_Transaction) {
-        Hacked_Transaction = hacked_Transaction;
+    public void setHackedTransaction(Transaction hackedTransaction) {
+        this.hackedTransaction = hackedTransaction;
     }
 
-    public Transaction getCorrect_Transaction() {
-        return Correct_Transaction;
+    public Transaction getCorrectTransaction() {
+        return correctTransaction;
     }
 
-    public void setCorrect_Transaction(Transaction correct_Transaction) {
-        Correct_Transaction = correct_Transaction;
+    public void setCorrectTransaction(Transaction correctTransaction) {
+        this.correctTransaction = correctTransaction;
     }
 
 

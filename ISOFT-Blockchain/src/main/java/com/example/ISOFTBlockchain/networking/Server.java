@@ -3,15 +3,13 @@ package com.example.ISOFTBlockchain.networking;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.List;
+
 public class Server {
     private final ServerSocket serverSocket;
-    public static List<Client> clients = new ArrayList<>();
+
     public Server(ServerSocket serverSocket) {
         this.serverSocket = serverSocket;
     }
-
 
     public void startServer() {
         try {
@@ -25,9 +23,6 @@ public class Server {
         }
     }
 
-    public static List<Client> getClients() {
-        return clients;
-    }
     public void closeServer() {
         try {
             if (serverSocket != null) {
@@ -36,10 +31,6 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static void addClient(Client client) {
-        clients.add(client);
     }
 
     public static void main(String[] args) throws IOException{
