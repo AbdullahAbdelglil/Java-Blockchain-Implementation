@@ -1,0 +1,13 @@
+package com.example.BlockchainServer.message;
+
+public enum MessageType {
+    SET_BLOCKCHAIN,
+    BROADCAST_TRANSACTION,
+    VALIDATE_TRANSACTION,
+    TRANSACTION_VALIDATION_RESULT,
+    MAKE_BLOCK,
+    BROADCAST_BLOCK,
+    VALIDATE_BLOCK,
+    BLOCK_VALIDATION_RESULT,
+    RECORD_BLOCK
+}
